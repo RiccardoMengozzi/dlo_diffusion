@@ -1,3 +1,4 @@
 /train3
 *.zip
 *.pt
+*.pyc
