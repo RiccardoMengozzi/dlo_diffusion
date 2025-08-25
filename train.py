@@ -24,8 +24,8 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {DEVICE}")
 
 CONFIG = dict(
-    batch_size=128,
-    epochs=500,
+    batch_size=1000,
+    epochs=2000,
     lr=5e-4,
     hidden_dim=256,
     dim_points=2,
@@ -39,7 +39,7 @@ CONFIG = dict(
     pred_h_dim=32,
 )
 
-wandb.init(config=CONFIG, project="diffusion_model", entity="riccardo_mengozzi", mode="disabled")
+wandb.init(config=CONFIG, project="diffusion_model", entity="riccardo_mengozzi", mode="online")
 config = wandb.config
 
 ###################################

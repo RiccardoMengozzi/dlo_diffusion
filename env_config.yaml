@@ -1,5 +1,5 @@
 inference:
-  model_path: diffusion_iconic-water-6_best.pt
+  model_path: checkpoints/diffusion_youthful-pine-58_best.pt
   n_episodes: 1
   n_actions: 10
 

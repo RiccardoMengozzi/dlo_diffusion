@@ -98,9 +98,7 @@ class DiffusionInference:
         dlo_0_n, dlo_1_n, obs_n, action_n, cs0, csR, rot_check_flag = normalize(
             dlo_0, dlo_1, obs, act, disp_scale=self.disp_scale, angle_scale=self.angle_scale
         )
-        print("dlo_1:", dlo_1)
         obs, action = prepare_obs_action(obs_n, dlo_1_n, action_n)
-        print("before sampling: ", obs.shape, action.shape)
 
         obs_horizon, action_horizon = random_horizon_sampling(
             obs, action, obs_h_dim=self.obs_h_dim, pred_h_dim=self.pred_horizon
@@ -214,8 +212,8 @@ class DiffusionInference:
 if __name__ == "__main__":
 
     MAIN_DIR = os.path.dirname(__file__)
-    DATA_PATH = os.path.join(MAIN_DIR, "train3")
-    CHECKPOINT_PATH = os.path.join(MAIN_DIR, "diffusion_smooth-field-4_best.pt")
+    DATA_PATH = os.path.join(MAIN_DIR, "DATA/train")
+    CHECKPOINT_PATH = os.path.join(MAIN_DIR, "checkpoints/diffusion_youthful-pine-58_best.pt")
     NOISE_STEPS = 100
 
     dlo_diff = DiffusionInference(CHECKPOINT_PATH, device="cuda", noise_steps=NOISE_STEPS)
@@ -232,7 +230,6 @@ if __name__ == "__main__":
 
         # LOAD
         dlo_0, dlo_1, obs, act = load_sample(file_path)
-        print(dlo_0.shape, dlo_1.shape, obs.shape, act.shape)
 
         # Run inference
         dlo_diff.run(dlo_0, dlo_1, obs, act)
