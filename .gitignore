@@ -1,4 +1,6 @@
 /train3
+/DATA
+/checkpoints
 *.zip
 *.pt
 *.pyc

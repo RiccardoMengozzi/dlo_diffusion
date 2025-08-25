@@ -1,6 +1,6 @@
 inference:
-  model_path: diffusion_smooth-field-4_best.pt
-  n_episodes: 10
+  model_path: diffusion_iconic-water-6_best.pt
+  n_episodes: 1
   n_actions: 10
 
 simulation:

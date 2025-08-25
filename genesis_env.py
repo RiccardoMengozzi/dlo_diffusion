@@ -523,16 +523,15 @@ class ShapingSimplifiedEnv:
 
                 self.grasp(int(pred_action[0, 0]))
                 self.ready_to_plot = True
-                for _ in tqdm(range(2), desc="Steps"):
-                    obs = self.get_obs()
+                obs = self.get_obs()
 
-                    self.obs_deque.append(obs)
-                    obs = np.stack(self.obs_deque)
-                    obs = obs.reshape(self.obs_horizon, -1)
-                    pred_action = self.model.run(obs)
-                    self.current_pred_action = pred_action
-                    self.draw_trajectory(pred_action)
-                    self.execute_trajectory(pred_action)
+                self.obs_deque.append(obs)
+                obs = np.stack(self.obs_deque)
+                obs = obs.reshape(self.obs_horizon, -1)
+                pred_action = self.model.run(obs)
+                self.current_pred_action = pred_action
+                self.draw_trajectory(pred_action)
+                self.execute_trajectory(pred_action)
 
         if self.config.simulation.camera.record:
             self.cam.stop_recording(save_to_filename="video.mp4", fps=60)

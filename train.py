@@ -16,26 +16,27 @@ from dataset import DloDataset
 MAIN_DIR = os.path.join(os.path.dirname(__file__))
 
 LOG_INTERVAL = 10
+SAVE_INTERVAL = 100
+VAL_INTERVAL = 10
+DATASETS_PATH = os.path.join(MAIN_DIR, "DATA")
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Using device: {DEVICE}")
 
 CONFIG = dict(
     batch_size=128,
-    epochs=100,
+    epochs=500,
     lr=5e-4,
     hidden_dim=256,
     dim_points=2,
     num_points=51,
-    scale_action=True,
     scale_disp=0.05,
     scale_rot=np.pi / 8,
-    dataset_path="train3",
-    obs_dim=206,
-    obs_ee_dim=3,
-    obs_dlo_dim=102,
+    dataset_path=DATASETS_PATH,
+    obs_dim=204,
     action_dim=4,
-    obs_h_dim=2,
-    pred_h_dim=16,
+    obs_h_dim=1,
+    pred_h_dim=32,
 )
 
 wandb.init(config=CONFIG, project="diffusion_model", entity="riccardo_mengozzi", mode="disabled")
@@ -54,16 +55,13 @@ class DiffusionTrainer:
     def __init__(self, config: dict):
         self.config = config
 
-        # train_path = os.path.join(DATASETS_PATH, config["dataset_path"], "train")
-        # val_path = os.path.join(DATASETS_PATH, config["dataset_path"], "val")
-        train_path = os.path.join(MAIN_DIR, config["dataset_path"])
-        val_path = os.path.join(MAIN_DIR, config["dataset_path"])
+        train_path = os.path.join(DATASETS_PATH, config["dataset_path"], "train")
+        val_path = os.path.join(DATASETS_PATH, config["dataset_path"], "val")
 
         # Build dataset and dataloader
         train_data = DloDataset(
             train_path,
             num_points=config["num_points"],
-            scale_action=config["scale_action"],
             linear_action_range=config["scale_disp"],
             rot_action_range=config["scale_rot"],
             obs_h_dim=config["obs_h_dim"],
@@ -73,7 +71,6 @@ class DiffusionTrainer:
         val_data = DloDataset(
             val_path,
             num_points=config["num_points"],
-            scale_action=config["scale_action"],
             linear_action_range=config["scale_disp"],
             rot_action_range=config["scale_rot"],
             obs_h_dim=config["obs_h_dim"],
@@ -124,16 +121,14 @@ class DiffusionTrainer:
 
         min_val_loss = np.inf
         print("\nStarting training...")
-        with tqdm(range(self.start_epoch, self.config.epochs), desc="Epoch") as epoch_bar:
-            for epoch in epoch_bar:
-                epoch_losses = []
-                self.noise_pred_net.train()
-                with tqdm(self.train_loader, desc="Batch", leave=False) as batch_bar:
-                    for batch in batch_bar:
-                        loss_value = self._train_on_batch(batch)
-                    epoch_losses.append(loss_value)
-                    batch_bar.set_postfix(loss=loss_value)
-                    wandb.log({"loss": loss_value}, step=self.global_step)
+
+        for epoch in range(config["epochs"]):
+            epoch_losses = []
+            self.noise_pred_net.train()
+            for batch in tqdm(self.train_loader, desc=f"Epoch {epoch + 1}/{config['epochs']}"):
+                loss_value = self._train_on_batch(batch)
+                epoch_losses.append(loss_value)
+                wandb.log({"loss": loss_value}, step=self.global_step)
                 self.global_step += 1
 
             avg_loss = float(np.mean(epoch_losses))
@@ -141,13 +136,10 @@ class DiffusionTrainer:
             print("Epoch: {}, step {}, train loss: {}".format(epoch, self.global_step, avg_loss))
 
             # Validation
-            val_loss = self.validation()
-            if val_loss < min_val_loss:
-                print(f"Validation loss improved: {min_val_loss} -> {val_loss}")
-                min_val_loss = val_loss
-
-                # Save the best model
-                print(f"Saving best model to {self.model_path}")
+            if epoch % VAL_INTERVAL == 0:
+                val_loss = self.validation()
+                wandb.log({"val_loss": val_loss}, step=self.global_step)
+            if epoch % SAVE_INTERVAL == 0:
                 state = dict(self.config)
                 state["model"] = self.noise_pred_net.state_dict()
                 torch.save(state, self.model_path)
