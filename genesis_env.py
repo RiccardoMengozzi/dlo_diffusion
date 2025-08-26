@@ -17,7 +17,7 @@ PROJECT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
 
 
-TARGET_SHAPE = np.array([
+U_SHAPE = np.array([
     [0.5000227,  0.23180239,  0.7030916 ],
     [0.49989584, 0.22447005,  0.70354724],
     [0.49945357, 0.21452278,  0.7035685 ],
@@ -71,12 +71,65 @@ TARGET_SHAPE = np.array([
     [0.5001113,  -0.2279048,  0.70392925],
 ])
 
+FINAL_SHAPE = np.array([[-0.00383,  0.04268,  0.00493],
+ [ 0.00555,  0.04613,  0.00492],
+ [ 0.01494,  0.04959,  0.00492],
+ [ 0.02432,  0.05304,  0.00492],
+ [ 0.03371,  0.05648,  0.00492],
+ [ 0.04312,  0.05988,  0.00492],
+ [ 0.05254,  0.06324,  0.00492],
+ [ 0.06198,  0.06653,  0.00492],
+ [ 0.07146,  0.06972,  0.00491],
+ [ 0.08098,  0.07277,  0.00491],
+ [ 0.08985,  0.07646,  0.00491],
+ [ 0.09949,  0.07912,  0.00492],
+ [ 0.11006,  0.07999,  0.00492],
+ [ 0.12002,  0.08081,  0.00492],
+ [ 0.13002,  0.08089,  0.00492],
+ [ 0.14001,  0.08034,  0.00492],
+ [ 0.14995,  0.07927,  0.00492],
+ [ 0.15984,  0.07776,  0.00492],
+ [ 0.16966,  0.07589,  0.00492],
+ [ 0.17943,  0.07372,  0.00492],
+ [ 0.18913,  0.07132,  0.00492],
+ [ 0.1988 ,  0.06874,  0.00492],
+ [ 0.20842,  0.06602,  0.00492],
+ [ 0.21801,  0.06319,  0.00492],
+ [ 0.22758,  0.06029,  0.00492],
+ [ 0.23714,  0.05735,  0.00492],
+ [ 0.24669,  0.05438,  0.00492],
+ [ 0.25624,  0.05141,  0.00492],
+ [ 0.26579,  0.04845,  0.00492],
+ [ 0.27535,  0.04552,  0.00492],
+ [ 0.28492,  0.04262,  0.00492],
+ [ 0.29451,  0.03978,  0.00492],
+ [ 0.30411,  0.03698,  0.00492],
+ [ 0.31373,  0.03425,  0.00492],
+ [ 0.32337,  0.03158,  0.00492],
+ [ 0.33302,  0.02897,  0.00492],
+ [ 0.34269,  0.02643,  0.00492],
+ [ 0.35239,  0.02396,  0.00492],
+ [ 0.36209,  0.02155,  0.00492],
+ [ 0.37181,  0.01921,  0.00492],
+ [ 0.38155,  0.01693,  0.00492],
+ [ 0.3913 ,  0.01471,  0.00492],
+ [ 0.40106,  0.01254,  0.00492],
+ [ 0.41084,  0.01043,  0.00492],
+ [ 0.42062,  0.00836,  0.00492],
+ [ 0.43041,  0.00633,  0.00492],
+ [ 0.44021,  0.00433,  0.00492],
+ [ 0.45002,  0.00236,  0.00492],
+ [ 0.45982,  0.00041,  0.00492],
+ [ 0.46963, -0.00153,  0.00492],
+ [ 0.47945, -0.00346,  0.00492]])
+
+
 class ShapingSimplifiedEnv:
     def __init__(self, config: ShapingConfig):
         self.config = config
         gs.init(
             backend=gs.cpu if self.config.simulation.cpu else gs.gpu,
-            logging_level="error",
+            logging_level="info",
         )
         ########################## create a scene ##########################
         self.scene: gs.Scene = gs.Scene(
@@ -181,6 +234,7 @@ class ShapingSimplifiedEnv:
             np.array([87, 87, 87, 87, 12, 12, 12, 100, 100]),
         )
         self.dlo_init_pos = self.dlo.get_particles()
+
         self.initial_pose = np.array(
             [
                 0.45,
@@ -203,12 +257,11 @@ class ShapingSimplifiedEnv:
         self.obs_horizon = self.model.obs_h_dim
 
         # Initialize observation buffer
-        # Rotate TARGET_SHAPE by 90 degrees counterclockwise around the Z axis
-        # Rotate TARGET_SHAPE by 90 degrees counterclockwise around the Z axis
-        rotation_matrix = np.array([[0, -1, 0],
-                        [1,  0, 0],
-                        [0,  0, 1]])
-        rotated_target_shape = np.array(TARGET_SHAPE) @ rotation_matrix.T
+        # Rotate TARGET_SHAPE by 90 degrees clockwise around the Z axis
+        rotation_matrix = np.array([[0, 1, 0],
+                        [-1, 0, 0],
+                        [0, 0, 1]])
+        rotated_target_shape = np.array(FINAL_SHAPE) @ rotation_matrix.T
 
         # Compute center of rotated target (mean of x and y)
         center_xyz = rotated_target_shape.mean(axis=0)
@@ -217,7 +270,7 @@ class ShapingSimplifiedEnv:
         # Add dlo position
         rotated_target_shape += self.config.dlo.position
 
-        self.target = TARGET_SHAPE
+        self.target = rotated_target_shape
         obs = self.get_obs()
         self.obs_deque = collections.deque(
             [obs] * self.obs_horizon, maxlen=self.obs_horizon

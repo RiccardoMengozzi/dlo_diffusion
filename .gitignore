@@ -5,3 +5,5 @@
 *.pt
 *.pyc
 /wandb
+*.egg*
+requirements.txt

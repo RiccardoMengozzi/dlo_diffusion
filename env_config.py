@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
-
+from utils import load_yaml
 
 @dataclass
 class ViewerConfig:
@@ -95,7 +95,6 @@ class ShapingConfig:
     @classmethod
     def from_yaml_and_args(cls, yaml_path: str, args):
         """Create config from YAML file and command line args"""
-        from diffusion_mk2.utils.utils import load_yaml
         
         cfg_dict = load_yaml(yaml_path)
         config = cls.from_dict(cfg_dict)

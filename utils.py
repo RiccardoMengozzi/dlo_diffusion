@@ -182,3 +182,19 @@ def get_closest_particle_index(
     """
     distances = np.linalg.norm(particles - position, axis=1)
     return np.argmin(distances)
+
+
+
+def load_yaml(file_path: str):
+    """
+    Load a YAML file and return its content.
+    
+    Args:
+        file_path (str): Path to the YAML file.
+        
+    Returns:
+        dict: Content of the YAML file.
+    """
+    import yaml
+    with open(file_path, 'r') as file:
+        return yaml.safe_load(file)
