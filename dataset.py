@@ -8,7 +8,7 @@ from normalize import normalize
 
 
 def prepare_obs_action(obs_n, dlo_1_n, action_n):
-
+    print("obs n shape = ", obs_n.shape)
     action_steps = action_n[1:] / obs_n.shape[1]
     actions_idx = np.tile(action_n[0], (obs_n.shape[0], 1))
     actions = np.tile(action_steps, (obs_n.shape[0], 1))
@@ -19,7 +19,7 @@ def prepare_obs_action(obs_n, dlo_1_n, action_n):
 
     # flatten the observation
     norm_obs = norm_obs.reshape(norm_obs.shape[0], -1)
-
+    print("norm_obs shape =  ", norm_obs.shape)
     return norm_obs, actions
 
 
