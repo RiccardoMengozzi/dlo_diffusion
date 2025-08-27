@@ -2,7 +2,7 @@ import shutil, glob, os, argparse
 from sklearn.model_selection import train_test_split
 
 # ******************
-RATIO = 0.9
+RATIO = 0.1
 # ******************
 
 if __name__ == "__main__":

@@ -24,7 +24,6 @@ def prepare_obs_action(obs_n, dlo_1_n, action_n):
 
 
 def random_horizon_sampling(obs, action, obs_h_dim, pred_h_dim):
-    print(f"obs_shape[0] = {obs.shape[0]}, pred_h_dim = {pred_h_dim}")
     upper_bound = obs.shape[0] - pred_h_dim + 1
     time_step = np.random.randint(0, upper_bound)
     obs = obs[time_step : time_step + obs_h_dim, :]

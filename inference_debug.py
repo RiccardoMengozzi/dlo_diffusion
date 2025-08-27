@@ -131,7 +131,7 @@ class DiffusionInference:
         print("REAL ACTION = ", act / obs.shape[0])
         print("PRED ACTION = ", pred_action_pos, pred_action_rot)
 
-        if True:
+        if False:
             fig = plt.figure(figsize=(12, 6))
 
             plt.plot(dlo_0_ok[:, 0], dlo_0_ok[:, 1], label="dlo_0_ok", color="blue")
@@ -158,7 +158,7 @@ class DiffusionInference:
             plt.axis("equal")
             plt.show()
 
-        if False:
+        if True:
             from matplotlib.widgets import Slider
 
             # Plot initialization
@@ -212,7 +212,7 @@ class DiffusionInference:
 if __name__ == "__main__":
 
     MAIN_DIR = os.path.dirname(__file__)
-    DATA_PATH = os.path.join(MAIN_DIR, "DATA/train")
+    DATA_PATH = os.path.join(MAIN_DIR, "DATA/val")
     CHECKPOINT_PATH = os.path.join(MAIN_DIR, "checkpoints/diffusion_iconic-water-6_best.pt")
     NOISE_STEPS = 100
 
