@@ -514,7 +514,7 @@ class ShapingSimplifiedEnv:
             target_pos=target_pos,
             target_quat=target_quat,
             gripper="open",
-            path_period=1.0,
+            path_period=1.0, # this is too fast, grasp is done better if 2.0 sec 
         )
 
         self.execute_action(
