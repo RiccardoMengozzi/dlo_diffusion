@@ -565,24 +565,17 @@ class ShapingSimplifiedEnv:
             self.reset_episode()
             for _ in tqdm(range(self.config.inference.n_actions), desc="Actions"):
                 self.reset_action()
+
                 obs = self.get_obs()
-                print("obs.shape", obs.shape)
                 self.obs_deque.append(obs)
                 obs = np.stack(self.obs_deque)
                 obs = obs.reshape(self.obs_horizon, -1)
 
-                pred_action = self.model.run(obs)
-                print("pred_action.shape", pred_action.shape)
-
-                self.grasp(int(pred_action[0, 0]))
-                self.ready_to_plot = True
-                obs = self.get_obs()
-
-                self.obs_deque.append(obs)
-                obs = np.stack(self.obs_deque)
-                obs = obs.reshape(self.obs_horizon, -1)
                 pred_action = self.model.run(obs)
                 self.current_pred_action = pred_action
+                self.ready_to_plot = True
+
+                self.grasp(int(pred_action[0, 0]))
                 self.draw_trajectory(pred_action)
                 self.execute_trajectory(pred_action)
 
