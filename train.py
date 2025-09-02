@@ -18,13 +18,13 @@ MAIN_DIR = os.path.join(os.path.dirname(__file__))
 LOG_INTERVAL = 10
 SAVE_INTERVAL = 100
 VAL_INTERVAL = 10
-DATASETS_PATH = os.path.join(MAIN_DIR, "DATA500k")
+DATASETS_PATH = os.path.join(MAIN_DIR, "dataset_20250902_161942")
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {DEVICE}")
 
 CONFIG = dict(
-    batch_size=10000,
+    batch_size=1,
     epochs=2000,
     lr=5e-4,
     hidden_dim=256,
@@ -39,7 +39,7 @@ CONFIG = dict(
     pred_h_dim=16,
 )
 
-wandb.init(config=CONFIG, project="diffusion_model", entity="riccardo_mengozzi", mode="online")
+wandb.init(config=CONFIG, project="diffusion_model", entity="riccardo_mengozzi", mode="disabled")
 config = wandb.config
 
 ###################################
@@ -66,7 +66,6 @@ class DiffusionTrainer:
             rot_action_range=config["scale_rot"],
             obs_h_dim=config["obs_h_dim"],
             pred_h_dim=config["pred_h_dim"],
-            use_multiprocessing=True,
         )
 
         val_data = DloDataset(
@@ -76,7 +75,6 @@ class DiffusionTrainer:
             rot_action_range=config["scale_rot"],
             obs_h_dim=config["obs_h_dim"],
             pred_h_dim=config["pred_h_dim"],
-            use_multiprocessing=True
         )
 
         self.train_loader = torch.utils.data.DataLoader(

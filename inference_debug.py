@@ -335,7 +335,7 @@ if __name__ == "__main__":
 
     MAIN_DIR = os.path.dirname(__file__)
     DATA_PATH = os.path.join(MAIN_DIR, "DATA/train")
-    CHECKPOINT_PATH = os.path.join(MAIN_DIR, "checkpoints/diffusion_dummy-cr4zd6r5_best.pt")
+    CHECKPOINT_PATH = os.path.join(MAIN_DIR, "checkpoints/diffusion_super-brook-8_best.pt")
     NOISE_STEPS = 100
 
     dlo_diff = DiffusionInference(CHECKPOINT_PATH, device="cuda", noise_steps=NOISE_STEPS)

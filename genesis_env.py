@@ -498,6 +498,8 @@ class ShapingSimplifiedEnv:
             average_number=self.config.dlo.particles_smoothing,
         )
 
+        print(skeleton)
+
         if self.config.inference.interactive:
             pred_idx = int(
                 input(f"Select particle index to grasp (0-{len(skeleton)-1}): ")

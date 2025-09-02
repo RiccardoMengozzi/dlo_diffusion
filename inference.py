@@ -241,8 +241,8 @@ if __name__ == "__main__":
 
 
 
-        #dlo_0_plot = DLO_0_N_TEST 
-        #dlo_1_plot = DLO_1_N_TEST 
+        dlo_0_plot = DLO_0_N_TEST 
+        dlo_1_plot = DLO_1_N_TEST 
         
 
         dlo_0 = dlo_0_plot.reshape(1, -1)
@@ -254,8 +254,8 @@ if __name__ == "__main__":
 
         # Run inference
         pred_action = dlo_diff.run(obs)
-        theta = np.sum(pred_action[-1])
-        print("theta = ", theta)
+        theta = np.sum(pred_action[:, -1])
+        print("theta °= ", theta / np.pi * 180)
 
 
         fig = plt.figure(figsize=(12, 6))
