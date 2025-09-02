@@ -1,47 +1,60 @@
-import shutil, glob, os, argparse
+import shutil
+import glob
+import os
+import argparse
 from sklearn.model_selection import train_test_split
+from tqdm import tqdm
 
 # ******************
 RATIO = 0.1
 # ******************
 
+def move_files(file_list, source_dir, dest_dir, desc="Moving files"):
+    """Move files instead of copying (much faster if on same filesystem)"""
+    for filename in tqdm(file_list, desc=desc):
+        src = os.path.join(source_dir, filename)
+        dst = os.path.join(dest_dir, filename)
+        shutil.move(src, dst)
+
 if __name__ == "__main__":
-    args = argparse.ArgumentParser()
-    args.add_argument("--dataset_path", required=True)
-    args = args.parse_args()
-    print(args)
-
-    dataset_path = args.dataset_path
-    if "/" == dataset_path[-1]:
-        dataset_path = dataset_path[:-1]
-
-    dataset_dir_path = os.path.dirname(dataset_path)
-    dataset_raw_folder = os.path.basename(dataset_path)
-
+    source = "/home/lar/Riccardo/dlo_pyel/dataset_20250901_132645"
+    destination = "/home/lar/Riccardo/dlo_diffusion/DATA_500k" 
+    
+    dataset_dir_path = os.path.dirname(destination)
+    dataset_raw_folder = os.path.basename(destination)
     dataset_train_folder = dataset_raw_folder + "_train"
     dataset_val_folder = dataset_raw_folder + "_val"
-
-    raw_path = os.path.join(dataset_dir_path, dataset_raw_folder)
+    
     train_path = os.path.join(dataset_dir_path, dataset_train_folder)
     val_path = os.path.join(dataset_dir_path, dataset_val_folder)
+    
+    # Create directories
     os.makedirs(train_path, exist_ok=True)
     os.makedirs(val_path, exist_ok=True)
-
-    files_list = glob.glob(os.path.join(raw_path, "*.pkl"))
+    
+    # Get all pickle files
+    files_list = glob.glob(os.path.join(source, "*.pkl"))
     files_names = [f.split("/")[-1] for f in files_list]
-    train, test = train_test_split(files_names, test_size=RATIO)
-    print("train size: {}, test size: {}".format(len(train), len(test)))
-
-    for sample in train:
-        path_old_file = os.path.join(raw_path, sample)
-        path_new_file = os.path.join(train_path, sample)
-
-        print("from {} to {}...".format(path_old_file, path_new_file))
-        shutil.copyfile(path_old_file, path_new_file)
-
-    for sample in test:
-        path_old_file = os.path.join(raw_path, sample)
-        path_new_file = os.path.join(val_path, sample)
-
-        print("from {} to {}...".format(path_old_file, path_new_file))
-        shutil.copyfile(path_old_file, path_new_file)
+    
+    # Split into train and test
+    train, test = train_test_split(files_names, test_size=RATIO, random_state=42)
+    
+    print(f"Train size: {len(train)}, Test size: {len(test)}")
+    print("Moving files (fastest option)...")
+    print("WARNING: Source directory will be empty after this operation!")
+    
+    # Confirm before proceeding
+    response = input("Continue? (y/N): ").strip().lower()
+    if response not in ['y', 'yes']:
+        print("Operation cancelled.")
+        exit(0)
+    
+    # Move files (this empties the source directory)
+    move_files(train, source, train_path, "Moving training samples")
+    move_files(test, source, val_path, "Moving validation samples")
+    
+    print("Dataset splitting completed!")
+    print(f"Original files moved from: {source}")
+    print(f"Training files in: {train_path}")
+    print(f"Validation files in: {val_path}")
+    print(f"\nTo merge back, use the reverse script with these paths.")

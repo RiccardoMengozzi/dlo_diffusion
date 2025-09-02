@@ -1,5 +1,6 @@
 /train3
 /DATA
+/DATA500k
 /checkpoints
 *.zip
 *.pt

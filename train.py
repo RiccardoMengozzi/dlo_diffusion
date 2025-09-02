@@ -18,20 +18,20 @@ MAIN_DIR = os.path.join(os.path.dirname(__file__))
 LOG_INTERVAL = 10
 SAVE_INTERVAL = 100
 VAL_INTERVAL = 10
-DATASETS_PATH = os.path.join(MAIN_DIR, "DATA")
+DATASETS_PATH = os.path.join(MAIN_DIR, "DATA500k")
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {DEVICE}")
 
 CONFIG = dict(
-    batch_size=1000,
+    batch_size=10000,
     epochs=2000,
     lr=5e-4,
     hidden_dim=256,
     dim_points=2,
     num_points=51,
-    scale_disp=0.05,
-    scale_rot=np.pi / 8,
+    scale_disp=0.075,
+    scale_rot=np.pi / 4,
     dataset_path=DATASETS_PATH,
     obs_dim=204,
     action_dim=4,
@@ -39,7 +39,7 @@ CONFIG = dict(
     pred_h_dim=16,
 )
 
-wandb.init(config=CONFIG, project="diffusion_model", entity="riccardo_mengozzi", mode="disabled")
+wandb.init(config=CONFIG, project="diffusion_model", entity="riccardo_mengozzi", mode="online")
 config = wandb.config
 
 ###################################
@@ -66,6 +66,7 @@ class DiffusionTrainer:
             rot_action_range=config["scale_rot"],
             obs_h_dim=config["obs_h_dim"],
             pred_h_dim=config["pred_h_dim"],
+            use_multiprocessing=True,
         )
 
         val_data = DloDataset(
@@ -75,6 +76,7 @@ class DiffusionTrainer:
             rot_action_range=config["scale_rot"],
             obs_h_dim=config["obs_h_dim"],
             pred_h_dim=config["pred_h_dim"],
+            use_multiprocessing=True
         )
 
         self.train_loader = torch.utils.data.DataLoader(
