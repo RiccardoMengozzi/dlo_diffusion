@@ -1,6 +1,6 @@
 /train3
 /DATA
-/DATA500k
+/DATA_500k
 /checkpoints
 *.zip
 *.pt
@@ -8,3 +8,5 @@
 /wandb
 *.egg*
 requirements.txt
+__pychache__/
+dataset*

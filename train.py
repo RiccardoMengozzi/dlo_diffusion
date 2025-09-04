@@ -18,13 +18,13 @@ MAIN_DIR = os.path.join(os.path.dirname(__file__))
 LOG_INTERVAL = 10
 SAVE_INTERVAL = 100
 VAL_INTERVAL = 10
-DATASETS_PATH = os.path.join(MAIN_DIR, "dataset_20250902_161942")
+DATASETS_PATH = os.path.join(MAIN_DIR, "DATA_500k")
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {DEVICE}")
 
 CONFIG = dict(
-    batch_size=1,
+    batch_size=5000,
     epochs=2000,
     lr=5e-4,
     hidden_dim=256,
@@ -39,7 +39,7 @@ CONFIG = dict(
     pred_h_dim=16,
 )
 
-wandb.init(config=CONFIG, project="diffusion_model", entity="riccardo_mengozzi", mode="disabled")
+wandb.init(config=CONFIG, project="diffusion_model", entity="riccardo_mengozzi", mode="online")
 config = wandb.config
 
 ###################################

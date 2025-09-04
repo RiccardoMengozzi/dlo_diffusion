@@ -20,13 +20,9 @@ if __name__ == "__main__":
     source = "/home/lar/Riccardo/dlo_pyel/dataset_20250901_132645"
     destination = "/home/lar/Riccardo/dlo_diffusion/DATA_500k" 
     
-    dataset_dir_path = os.path.dirname(destination)
-    dataset_raw_folder = os.path.basename(destination)
-    dataset_train_folder = dataset_raw_folder + "_train"
-    dataset_val_folder = dataset_raw_folder + "_val"
+    train_path = os.path.join(destination, "train")
+    val_path = os.path.join(destination, "val")
     
-    train_path = os.path.join(dataset_dir_path, dataset_train_folder)
-    val_path = os.path.join(dataset_dir_path, dataset_val_folder)
     
     # Create directories
     os.makedirs(train_path, exist_ok=True)

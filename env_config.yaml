@@ -1,5 +1,5 @@
 inference:
-  model_path: checkpoints/diffusion_super-brook-8_best.pt
+  model_path: checkpoints/diffusion_sage-pine-63_best.pt
   n_episodes: 1
   n_actions: 10
 
