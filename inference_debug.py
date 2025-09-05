@@ -4,10 +4,10 @@ import numpy as np
 import os
 from tqdm import tqdm
 
-from conditional_1d_unet import ConditionalUnet1D
+from model.conditional_1d_unet import ConditionalUnet1D
 from diffusers.schedulers import DDPMScheduler
 
-from normalize import normalize, denormalize_dlo, denormalize_action_horizon, convert_action_horizon_to_absolute
+from model.normalize import normalize, denormalize_dlo, denormalize_action_horizon, convert_action_horizon_to_absolute
 from dataset import load_sample, prepare_obs_action, random_horizon_sampling
 
 

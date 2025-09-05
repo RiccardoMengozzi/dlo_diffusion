@@ -10,3 +10,7 @@
 requirements.txt
 __pychache__/
 dataset*
+*.zip
+train/
+train_episodes/
+train_episodes_splitted/

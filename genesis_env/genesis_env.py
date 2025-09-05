@@ -4,7 +4,7 @@ import numpy as np
 from env_config import ShapingConfig
 from genesis.engine.entities import RigidEntity, MPMEntity
 from genesis.engine.entities.rigid_entity import RigidLink
-import utils 
+import genesis_env.utils as utils 
 from inference import DiffusionInference
 from scipy.spatial.transform import Rotation as R
 import collections
@@ -146,7 +146,7 @@ class ShapingSimplifiedEnv:
         self.table = self.scene.add_entity(
             morph=gs.morphs.URDF(
                 file=os.path.join(
-                    PROJECT_FOLDER, "models/SimpleTable/SimpleTable.urdf"
+                    PROJECT_FOLDER, "assets/SimpleTable/SimpleTable.urdf"
                 ),
                 pos=self.config.table.position,
                 euler=self.config.table.orientation,

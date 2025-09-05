@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
-from utils import load_yaml
+from genesis_env.utils import load_yaml
 
 @dataclass
 class ViewerConfig:

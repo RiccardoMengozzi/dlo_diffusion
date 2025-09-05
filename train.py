@@ -9,7 +9,7 @@ from diffusers.training_utils import EMAModel
 from diffusers import get_scheduler
 from diffusers.schedulers import DDPMScheduler
 
-from conditional_1d_unet import ConditionalUnet1D
+from model.conditional_1d_unet import ConditionalUnet1D
 from dataset import DloDataset
 
 
@@ -18,20 +18,21 @@ MAIN_DIR = os.path.join(os.path.dirname(__file__))
 LOG_INTERVAL = 10
 SAVE_INTERVAL = 100
 VAL_INTERVAL = 10
-DATASETS_PATH = os.path.join(MAIN_DIR, "DATA_500k")
+DATASETS_PATH = os.path.join(MAIN_DIR, "train_episodes_splitted")
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {DEVICE}")
 
 CONFIG = dict(
-    batch_size=5000,
+    batch_size=500,
     epochs=2000,
-    lr=5e-4,
+    lr=1e-4,
+    episode_horizon_scaling=[(500, 1), (1000, 2), (1500, 3), (2000, 4)],
     hidden_dim=256,
     dim_points=2,
     num_points=51,
-    scale_disp=0.075,
-    scale_rot=np.pi / 4,
+    scale_disp=0.05,
+    scale_rot=np.pi / 8,
     dataset_path=DATASETS_PATH,
     obs_dim=204,
     action_dim=4,
@@ -39,7 +40,7 @@ CONFIG = dict(
     pred_h_dim=16,
 )
 
-wandb.init(config=CONFIG, project="diffusion_model", entity="riccardo_mengozzi", mode="online")
+wandb.init(config=CONFIG, project="diffusion_model", entity="riccardo_mengozzi", mode="disabled")
 config = wandb.config
 
 ###################################
@@ -117,12 +118,31 @@ class DiffusionTrainer:
             os.path.join(MAIN_DIR, "checkpoints"), "diffusion_" + wandb.run.name + "_best.pth"
         )
 
+
+    def update_episode_horizon(self, epoch: int):
+        """
+        Update dataset episode horizon according to config['episode_horizon_scaling'].
+        Scaling is defined as a list of (max_epoch, horizon_value).
+        """
+        for max_epoch, hor_value in self.config["episode_horizon_scaling"]:
+            if epoch < max_epoch:
+                self.train_loader.dataset.set_episode_horizon(hor_value, epoch)
+                self.val_loader.dataset.set_episode_horizon(hor_value, epoch)
+                return
+        # If beyond last defined step, use last value
+        last_value = self.config["episode_horizon_scaling"][-1][1]
+        self.train_loader.dataset.set_episode_horizon(last_value, epoch)
+        self.val_loader.dataset.set_episode_horizon(last_value, epoch)
+
+
     def train(self):
 
         min_val_loss = np.inf
         print("\nStarting training...")
 
         for epoch in range(config["epochs"]):
+            self.update_episode_horizon(epoch)
+
             epoch_losses = []
             self.noise_pred_net.train()
             for batch in tqdm(self.train_loader, desc=f"Epoch {epoch + 1}/{config['epochs']}"):
