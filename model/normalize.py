@@ -96,7 +96,7 @@ def check_rot_and_flip(dlo_0_n, dlo_1_n):
     return dlo_0_n, dlo_1_n, False
 
 
-def normalize(dlo_0, dlo_1, obs, action, disp_scale, angle_scale):
+def normalize(dlo_0, dlo_1, action_traj, disp_scale, angle_scale):
     # compute normalization factors
     cs0, csR = compute_cs0_csR(dlo_0)
 
@@ -104,20 +104,19 @@ def normalize(dlo_0, dlo_1, obs, action, disp_scale, angle_scale):
     dlo_0_n = normalize_dlo(dlo_0, cs0, csR)
     dlo_1_n = normalize_dlo(dlo_1, cs0, csR)
 
-    # normalize observation
-    obs_n = np.zeros_like(obs)
-    for i in range(obs.shape[0]):
-        obs_n[i, :, :] = normalize_dlo(obs[i, :, :], cs0, csR)
-
     # check rot
     dlo_0_n, dlo_1_n, rot_check_flag = check_rot_and_flip(dlo_0_n, dlo_1_n)
 
     # action
-    action_n = normalize_action(
-        dlo_0, action, cs0, csR, disp_scale, angle_scale, scale_action=True, rot_check_flag=rot_check_flag
-    )
+    action_traj_n = []
+    for action in action_traj:
+        action_n = normalize_action(
+            dlo_0, action, cs0, csR, disp_scale, angle_scale, scale_action=True, rot_check_flag=rot_check_flag
+        )
+        action_traj_n.append(action_n)
+    action_traj_n = np.array(action_traj_n)
 
-    return dlo_0_n, dlo_1_n, obs_n, action_n, cs0, csR, rot_check_flag
+    return dlo_0_n, dlo_1_n, action_traj_n, cs0, csR, rot_check_flag
 
 
 ###############################

@@ -18,20 +18,20 @@ MAIN_DIR = os.path.join(os.path.dirname(__file__))
 LOG_INTERVAL = 10
 SAVE_INTERVAL = 100
 VAL_INTERVAL = 10
-DATASETS_PATH = os.path.join(MAIN_DIR, "train_episodes_splitted")
+DATASETS_PATH = os.path.join(MAIN_DIR, "dataset_linear")
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {DEVICE}")
 
 CONFIG = dict(
-    batch_size=500,
-    epochs=2000,
+    batch_size=2500,
+    epochs=20000,
     lr=1e-4,
-    episode_horizon_scaling=[(500, 1), (1000, 2), (1500, 3), (2000, 4)],
+    episode_horizon_scaling=[(20000, 1)],
     hidden_dim=256,
     dim_points=2,
     num_points=51,
-    scale_disp=0.05,
+    scale_disp=0.707,
     scale_rot=np.pi / 8,
     dataset_path=DATASETS_PATH,
     obs_dim=204,
@@ -40,7 +40,7 @@ CONFIG = dict(
     pred_h_dim=16,
 )
 
-wandb.init(config=CONFIG, project="diffusion_model", entity="riccardo_mengozzi", mode="disabled")
+wandb.init(config=CONFIG, project="diffusion_model", entity="riccardo_mengozzi", mode="online")
 config = wandb.config
 
 ###################################
@@ -115,7 +115,10 @@ class DiffusionTrainer:
         self.start_epoch = 0
 
         self.model_path = os.path.join(
-            os.path.join(MAIN_DIR, "checkpoints"), "diffusion_" + wandb.run.name + "_best.pth"
+            os.path.join(MAIN_DIR, "checkpoints"), "diffusion_" + wandb.run.name + ".pt"
+        )
+        self.best_model_path = os.path.join(
+            os.path.join(MAIN_DIR, "checkpoints"), "diffusion_" + wandb.run.name + "_best.pt"
         )
 
 
@@ -141,7 +144,7 @@ class DiffusionTrainer:
         print("\nStarting training...")
 
         for epoch in range(config["epochs"]):
-            self.update_episode_horizon(epoch)
+            # self.update_episode_horizon(epoch)
 
             epoch_losses = []
             self.noise_pred_net.train()
@@ -158,6 +161,11 @@ class DiffusionTrainer:
             # Validation
             if epoch % VAL_INTERVAL == 0:
                 val_loss = self.validation()
+                if val_loss < min_val_loss:
+                    min_val_loss = val_loss
+                    state = dict(self.config)
+                    state["model"] = self.noise_pred_net.state_dict()
+                    torch.save(state, self.best_model_path)
                 wandb.log({"val_loss": val_loss}, step=self.global_step)
             if epoch % SAVE_INTERVAL == 0:
                 state = dict(self.config)
